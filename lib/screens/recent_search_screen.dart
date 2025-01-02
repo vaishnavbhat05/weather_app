@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'city_search_screen.dart';
 import 'home_screen.dart';
 
 class RecentSearchScreen extends StatefulWidget {
@@ -10,7 +9,6 @@ class RecentSearchScreen extends StatefulWidget {
 }
 
 class _RecentSearchScreenState extends State<RecentSearchScreen> {
-  // Example data for recent searches
   List<Map<String, dynamic>> recentSearches = [
     {'name': 'New York', 'temp': '25°', 'description': 'Mostly Sunny'},
     {'name': 'London', 'temp': '18°', 'description': 'Cloudy'},
@@ -142,7 +140,6 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // List of recent searches
                 Expanded(
                   child: ListView.builder(
                     itemCount: recentSearches.length,
@@ -209,7 +206,6 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                               icon: const Icon(Icons.favorite),
                               color: Colors.yellow.shade700,
                               onPressed: () {
-                                // Logic to handle the favorite button
                               },
                             ),
                           ],

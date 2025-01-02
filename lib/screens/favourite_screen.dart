@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'city_search_screen.dart';
-import 'home_screen.dart';
-import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
 class FavouriteScreen extends StatefulWidget {
@@ -22,7 +19,6 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
     {'name': 'Mumbai', 'temp': '33 °', 'description': 'Humid'},
   ];
 
-  // Function to return different icons based on weather description
   IconData getWeatherIcon(String description) {
     switch (description.toLowerCase()) {
       case 'sunny':
@@ -32,12 +28,12 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
       case 'clear sky':
         return Icons.wb_cloudy_rounded;
       case 'rainy':
-        return Icons.cloudy_snowing; // Use a different icon for rainy weather
+        return Icons.cloudy_snowing;
       case 'humid':
         return Icons
-            .water_drop_rounded; // Use a water drop icon for humid weather
+            .water_drop_rounded;
       default:
-        return Icons.wb_sunny_rounded; // Default icon for undefined weather
+        return Icons.wb_sunny_rounded;
     }
   }
 
@@ -52,23 +48,23 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Make the dialog rectangular
+          borderRadius: BorderRadius.zero,
         ),
         content: const Text(
           "Are you sure you want to remove all the favorites?",
-          style: TextStyle(fontSize: 16), // Optional: Adjust font size
+          style: TextStyle(fontSize: 16),
         ),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close the dialog
+              Navigator.pop(context);
             },
             child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
-              removeAllFavorites(); // Remove all favorites
-              Navigator.pop(context); // Close the dialog
+              removeAllFavorites();
+              Navigator.pop(context);
             },
             child: const Text("OK"),
           ),
@@ -85,12 +81,12 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
         appBar: AppBar(
           actions: [
             IconButton(
-              icon: const Icon(Icons.arrow_back), // Back button icon
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) =>HomeScreen()),
-                ); // Navigate back to the HomeScreen
+                );
               },
             ),
             const SizedBox(
@@ -108,7 +104,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
               onPressed: () { },
               icon: const Icon(Icons.search, color: Colors.black),
             ),
-          ], // Add a title for clarity
+          ],
         ),
         body: favoriteCities.isEmpty
             ? Center(
@@ -116,8 +112,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF3D72E8), // Second gradient color
-                      Color(0xFF9568D1), // Third gradient color
+                      Color(0xFF3D72E8),
+                      Color(0xFF9568D1),
                     ],
                     begin: Alignment.bottomLeft,
                     end: Alignment.centerRight,
@@ -127,9 +123,9 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                   children: [
                     Positioned.fill(
                       child: Image.asset(
-                        'assets/images/no_fav.png', // Replace with your image path
+                        'assets/images/no_fav.png',
                         fit: BoxFit
-                            .cover, // Ensures the image covers the entire container
+                            .cover,
                       ),
                     ),
                     const Center(
@@ -145,8 +141,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF3D72E8), // Second gradient color
-                      Color(0xFF9568D1), // Third gradient color
+                      Color(0xFF3D72E8),
+                      Color(0xFF9568D1),
                     ],
                     begin: Alignment.bottomLeft,
                     end: Alignment.centerRight,
@@ -192,35 +188,31 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.white
-                                        .withOpacity(0.2), // Light shadow color
+                                        .withOpacity(0.2),
                                     offset:
-                                        const Offset(0, 2), // Shadow position
+                                        const Offset(0, 2),
                                   ),
                                 ],
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Left Column for City Name and Icon+Temp+Description
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      // City Name with Yellow color
                                       Text(
                                         city['name'],
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: Colors
-                                              .yellow, // Yellow color for city name
+                                              .yellow,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
-                                      // Second Line: Weather Icon, Temp, Description
                                       Row(
                                         children: [
-                                          // Weather Icon based on description
                                           Icon(
                                             getWeatherIcon(city['description']),
                                             color: Colors.white,
@@ -232,7 +224,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                             style: const TextStyle(
                                               fontSize: 20,
                                               color: Colors
-                                                  .white, // White color for temperature
+                                                  .white,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -241,7 +233,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                             style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors
-                                                  .white, // White color for description
+                                                  .white,
                                             ),
                                           ),
                                         ],
@@ -249,12 +241,10 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                     ],
                                   ),
                                   const Spacer(),
-                                  // Favorite Button - Positioned on the right, centered vertically
                                   IconButton(
                                     icon: const Icon(Icons.favorite),
                                     color: Colors.yellow.shade700,
                                     onPressed: () {
-                                      // Logic to remove the city from favorites
                                     },
                                   ),
                                 ],

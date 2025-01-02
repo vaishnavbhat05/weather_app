@@ -35,8 +35,8 @@ class _SplashScreenState extends State<SplashScreen> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF3D72E8), // Second gradient color
-                  Color(0xFF9568D1), // Third gradient color
+                  Color(0xFF3D72E8),
+                  Color(0xFF9568D1),
                 ],
                 begin: Alignment.bottomLeft,
                 end: Alignment.centerRight,
@@ -44,10 +44,10 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             child: Center(
               child: Image.asset(
-                'assets/images/weather.png', // Replace with your image path
-                width: 200, // Adjust the width of the image
-                height: 200, // Adjust the height of the image
-                fit: BoxFit.contain, // Ensures the image is scaled appropriately
+                'assets/images/weather.png',
+                width: 200,
+                height: 200,
+                fit: BoxFit.contain,
               ),
             ),
           ),
