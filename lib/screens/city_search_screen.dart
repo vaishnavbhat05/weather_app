@@ -95,7 +95,6 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
                         ListTile(
                           title: Text(filteredCities()[index],style: const TextStyle(color: Colors.black),),
                           onTap: () {
-                            api data
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
