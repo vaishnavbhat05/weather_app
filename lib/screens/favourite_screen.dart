@@ -9,14 +9,13 @@ class FavouriteScreen extends StatefulWidget {
 }
 
 class _FavouriteScreenState extends State<FavouriteScreen> {
-  // Example data for favorite cities
   List<Map<String, dynamic>> favoriteCities = [
-    {'name': 'New York', 'temp': '25 °', 'description': 'Mostly Sunny'},
-    {'name': 'London', 'temp': '18 °', 'description': 'Cloudy'},
-    {'name': 'Tokyo', 'temp': '30 °', 'description': 'Sunny'},
-    {'name': 'Paris', 'temp': '22 °', 'description': 'Clear Sky'},
-    {'name': 'Sydney', 'temp': '28 °', 'description': 'Rainy'},
-    {'name': 'Mumbai', 'temp': '33 °', 'description': 'Humid'},
+    {'name': 'Udupi', 'temp': '25 °', 'description': 'Mostly Sunny'},
+    {'name': 'Mysore', 'temp': '18 °', 'description': 'Cloudy'},
+    {'name': 'Bangalore', 'temp': '30 °', 'description': 'Sunny'},
+    {'name': 'Mangalore', 'temp': '22 °', 'description': 'Clear Sky'},
+    {'name': 'Hassan', 'temp': '28 °', 'description': 'Rainy'},
+    {'name': 'Hubli', 'temp': '33 °', 'description': 'Humid'},
   ];
 
   IconData getWeatherIcon(String description) {
