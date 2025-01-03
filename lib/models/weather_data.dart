@@ -7,6 +7,8 @@ class WeatherData {
   final double maxTemperature;
   final int precipitation;
   final int humidity;
+  final String description;
+  final String iconCode;
 
   WeatherData({
     this.id,
@@ -17,9 +19,38 @@ class WeatherData {
     required this.maxTemperature,
     required this.precipitation,
     required this.humidity,
+    required this.description,
+    required this.iconCode,
   });
 
-  Map<String, dynamic> toMap() {
+  factory WeatherData.fromJson(Map<String, dynamic> json) {
+    final main = json['main'];
+    final weather = json['weather'][0];
+    final clouds = json['clouds'];
+
+    final double temperatureCelsius = main['temp'].toDouble();
+    final double temperatureFahrenheit = (temperatureCelsius * 9 / 5) + 32;
+    final double minTemperature = main['temp_min'].toDouble();
+    final double maxTemperature = main['temp_max'].toDouble();
+    final int precipitation = clouds['all'];
+    final int humidity = main['humidity'];
+    final String description = weather['main'];
+    final String iconCode = weather['icon'];
+
+    return WeatherData(
+      cityName: json['name'],
+      temperatureCelsius: temperatureCelsius,
+      temperatureFahrenheit: temperatureFahrenheit,
+      minTemperature: minTemperature,
+      maxTemperature: maxTemperature,
+      precipitation: precipitation,
+      humidity: humidity,
+      description: description,
+      iconCode: iconCode,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
     return {
       'cityName': cityName,
       'temperatureCelsius': temperatureCelsius,
@@ -28,19 +59,8 @@ class WeatherData {
       'maxTemperature': maxTemperature,
       'precipitation': precipitation,
       'humidity': humidity,
+      'description': description,
+      'iconCode': iconCode,
     };
-  }
-
-  static WeatherData fromMap(Map<String, dynamic> map) {
-    return WeatherData(
-      id: map['id'],
-      cityName: map['cityName'],
-      temperatureCelsius: map['temperatureCelsius'],
-      temperatureFahrenheit: map['temperatureFahrenheit'],
-      minTemperature: map['minTemperature'],
-      maxTemperature: map['maxTemperature'],
-      precipitation: map['precipitation'],
-      humidity: map['humidity'],
-    );
   }
 }

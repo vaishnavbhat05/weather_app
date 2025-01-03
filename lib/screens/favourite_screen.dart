@@ -1,77 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/favourite_city.dart';
+import '../provider/weather_provider.dart';
+import '../services/DatabaseService.dart';
 import 'home_screen.dart';
 
-class FavouriteScreen extends StatefulWidget {
+class FavouriteScreen extends StatelessWidget {
   const FavouriteScreen({super.key});
-
-  @override
-  State<FavouriteScreen> createState() => _FavouriteScreenState();
-}
-
-class _FavouriteScreenState extends State<FavouriteScreen> {
-  List<Map<String, dynamic>> favoriteCities = [
-    {'name': 'Udupi', 'temp': '25 °', 'description': 'Mostly Sunny'},
-    {'name': 'Mysore', 'temp': '18 °', 'description': 'Cloudy'},
-    {'name': 'Bangalore', 'temp': '30 °', 'description': 'Sunny'},
-    {'name': 'Mangalore', 'temp': '22 °', 'description': 'Clear Sky'},
-    {'name': 'Hassan', 'temp': '28 °', 'description': 'Rainy'},
-    {'name': 'Hubli', 'temp': '33 °', 'description': 'Humid'},
-  ];
-
-  IconData getWeatherIcon(String description) {
-    switch (description.toLowerCase()) {
-      case 'sunny':
-        return Icons.wb_sunny_rounded;
-      case 'cloudy':
-        return Icons.cloud_rounded;
-      case 'clear sky':
-        return Icons.wb_cloudy_rounded;
-      case 'rainy':
-        return Icons.cloudy_snowing;
-      case 'humid':
-        return Icons
-            .water_drop_rounded;
-      default:
-        return Icons.wb_sunny_rounded;
-    }
-  }
-
-  void removeAllFavorites() {
-    setState(() {
-      favoriteCities.clear();
-    });
-  }
-
-  void showRemoveAllDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
-        content: const Text(
-          "Are you sure you want to remove all the favorites?",
-          style: TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              removeAllFavorites();
-              Navigator.pop(context);
-            },
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +19,11 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) =>HomeScreen()),
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
                 );
               },
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             const Text(
               'Favourite',
               style: TextStyle(
@@ -100,43 +33,46 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
             ),
             const Spacer(),
             IconButton(
-              onPressed: () { },
+              onPressed: () {},
               icon: const Icon(Icons.search, color: Colors.black),
             ),
           ],
         ),
-        body: favoriteCities.isEmpty
-            ? Center(
+        body: FutureBuilder<List<FavouriteCity>>(
+          future: DatabaseHelper.instance.getFavorites(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('Error loading favorites'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
                 child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF3D72E8),
-                      Color(0xFF9568D1),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF3D72E8),
+                        Color(0xFF9568D1),
+                      ],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Image.asset(
+                          'assets/images/no_fav.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.centerRight,
                   ),
                 ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        'assets/images/no_fav.png',
-                        fit: BoxFit
-                            .cover,
-                      ),
-                    ),
-                    const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [],
-                      ),
-                    ),
-                  ],
-                ),
-              ))
-            : Container(
+              );
+            } else {
+              List<FavouriteCity> favoriteCities = snapshot.data!;
+              return Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -163,13 +99,13 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                           const Spacer(),
                           TextButton(
                             onPressed: () {
-                              showRemoveAllDialog(context);
+                              showRemoveAllDialog(context, favoriteCities);
                             },
                             child: const Text(
                               "Remove All",
                               style: TextStyle(color: Colors.white),
                             ),
-                          )
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -180,16 +116,14 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                           itemBuilder: (context, index) {
                             final city = favoriteCities[index];
                             return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
+                              margin: const EdgeInsets.symmetric(vertical: 1.0),
                               padding: const EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
                                 color: Colors.transparent,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.white
-                                        .withOpacity(0.2),
-                                    offset:
-                                        const Offset(0, 2),
+                                    color: Colors.white.withOpacity(0.2),
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
@@ -201,38 +135,42 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        city['name'],
+                                        city.cityName,
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors
-                                              .yellow,
+                                          color: Colors.yellow,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(
-                                            getWeatherIcon(city['description']),
+                                          city.weatherIconUrl.isNotEmpty
+                                              ? Image.network(
+                                            city.weatherIconUrl,
+                                            width: 32,
+                                            height: 32,
+                                            fit: BoxFit.cover,
+                                          )
+                                              : const Icon(
+                                            Icons.wb_sunny_rounded,
                                             color: Colors.white,
                                             size: 28,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            '${city['temp']}c',
+                                            '${city.temperatureCelsius.toStringAsFixed(0)}°c',
                                             style: const TextStyle(
                                               fontSize: 20,
-                                              color: Colors
-                                                  .white,
+                                              color: Colors.white,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            city['description'],
+                                            city.description,
                                             style: const TextStyle(
                                               fontSize: 18,
-                                              color: Colors
-                                                  .white,
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ],
@@ -241,9 +179,15 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                   ),
                                   const Spacer(),
                                   IconButton(
-                                    icon: const Icon(Icons.favorite),
-                                    color: Colors.yellow.shade700,
-                                    onPressed: () {
+                                    icon: const Icon(Icons.favorite,
+                                        color: Colors.yellow),
+                                    onPressed: () async {
+                                      // Remove the city from favorites
+                                      await DatabaseHelper.instance
+                                          .deleteFavorite(city.cityName);
+                                      Provider.of<WeatherProvider>(context,
+                                              listen: false)
+                                          .toggleFavorite();
                                     },
                                   ),
                                 ],
@@ -255,7 +199,45 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                     ],
                   ),
                 ),
-              ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  void showRemoveAllDialog(
+      BuildContext context, List<FavouriteCity> favoriteCities) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+        ),
+        content: const Text(
+          "Are you sure you want to remove all the favorites?",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              for (var city in favoriteCities) {
+                await DatabaseHelper.instance.deleteFavorite(city.cityName);
+              }
+              Provider.of<WeatherProvider>(context, listen: false)
+                  .toggleFavorite();
+              Navigator.pop(context);
+            },
+            child: const Text("OK"),
+          ),
+        ],
       ),
     );
   }

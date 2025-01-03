@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/provider/weather_provider.dart';
+import 'package:weather_app/services/DatabaseService.dart';
 import 'package:weather_app/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dbHelper = DatabaseHelper.instance;
+  await dbHelper.database;
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => WeatherProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => WeatherProvider(),
+        ),
+      ],
       child: const MyApp(),
     ),
   );

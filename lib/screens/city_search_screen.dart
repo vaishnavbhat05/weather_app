@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/recent_search.dart';
+import '../models/weather_data.dart';
 import '../provider/weather_provider.dart';
+import '../services/DatabaseService.dart';
 import 'home_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -43,45 +46,60 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
     return [];
   }
 
+  // Future<void> _fetchWeatherData(String cityName) async {
+  //   const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde'; // Replace with your API key
+  //   final url = Uri.parse(
+  //       'https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&units=metric');
+  //
+  //   final response = await http.get(url);
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = json.decode(response.body);
+  //
+  //     WeatherData weatherData = WeatherData.fromJson(data);
+  //
+  //     Provider.of<WeatherProvider>(context, listen: false)
+  //         .updateWeatherData(weatherData);
+  //
+  //     // Navigate to the HomeScreen after updating the weather data
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => const HomeScreen()),
+  //     );
+  //   } else {
+  //     throw Exception('Failed to load weather data');
+  //   }
+  // }
   Future<void> _fetchWeatherData(String cityName) async {
-    const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde'; // Replace with your API key
-    final url = Uri.parse('https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&units=metric');
+    const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde';
+    final url = Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&units=metric');
 
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
 
-      final double temperatureCelsius = data['main']['temp'].toDouble();
-      final double temperatureFahrenheit = (temperatureCelsius * 9 / 5) + 32;
-      final double minTemperature = data['main']['temp_min'].toDouble();
-      final double maxTemperature = data['main']['temp_max'].toDouble();
-      final int precipitation = data['clouds']['all'];
-      final int humidity = data['main']['humidity'];
-      final String description =  data['weather'][0]['main'];
-      final String iconCode = data['weather'][0]['icon'];
+      WeatherData weatherData = WeatherData.fromJson(data);
 
-      Provider.of<WeatherProvider>(context, listen: false).updateWeatherData(
-        city: cityName,
-        tempCelsius: temperatureCelsius,
-        tempFahrenheit: temperatureFahrenheit,
-        minTemp: minTemperature,
-        maxTemp: maxTemperature,
-        humidity: humidity,
-        precipitation: precipitation,
-        description: description,
-        iconCode: iconCode,
+      final recentSearch = RecentSearch(
+        cityName: cityName,
+        temperatureCelsius: weatherData.temperatureCelsius,
+        description: weatherData.description,
+        weatherIconUrl: 'https://openweathermap.org/img/wn/${weatherData.iconCode}@2x.png',
       );
+      await DatabaseHelper.instance.insertRecentSearch(recentSearch);
+
+      Provider.of<WeatherProvider>(context, listen: false).updateWeatherData(weatherData);
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       throw Exception('Failed to load weather data');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context).copyWith(
@@ -106,7 +124,7 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
                 );
               },
             ),

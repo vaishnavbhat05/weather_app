@@ -7,7 +7,7 @@ import 'city_search_screen.dart';
 import 'favourite_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
