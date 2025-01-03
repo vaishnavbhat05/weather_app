@@ -6,8 +6,14 @@ import '../provider/weather_provider.dart';
 import 'city_search_screen.dart';
 import 'favourite_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -187,12 +193,18 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 70),
-                    const Icon(
+                    weatherProvider.weatherIconUrl.isNotEmpty
+                        ? Image.network(
+                      weatherProvider.weatherIconUrl,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    )
+                        : const Icon(
                       Icons.wb_sunny_rounded,
                       size: 100,
                       color: Colors.white,
                     ),
-                    const SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -361,7 +373,7 @@ class HomeScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '${weatherProvider.pressure}%',
+                                        '${weatherProvider.precipitation}%',
                                         style: const TextStyle(
                                           fontSize: 18,
                                           color: Colors.white,

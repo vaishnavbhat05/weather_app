@@ -56,9 +56,10 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
       final double temperatureFahrenheit = (temperatureCelsius * 9 / 5) + 32;
       final double minTemperature = data['main']['temp_min'].toDouble();
       final double maxTemperature = data['main']['temp_max'].toDouble();
-      final int pressure = data['main']['pressure'];
+      final int precipitation = data['clouds']['all'];
       final int humidity = data['main']['humidity'];
-      final String description =  data['weather'][0]['description'];
+      final String description =  data['weather'][0]['main'];
+      final String iconCode = data['weather'][0]['icon'];
 
       Provider.of<WeatherProvider>(context, listen: false).updateWeatherData(
         city: cityName,
@@ -67,8 +68,9 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
         minTemp: minTemperature,
         maxTemp: maxTemperature,
         humidity: humidity,
-        pressure: pressure,
+        precipitation: precipitation,
         description: description,
+        iconCode: iconCode,
       );
 
       Navigator.pushReplacement(

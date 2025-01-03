@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';class WeatherProvider with ChangeNotifier {
-  String cityName = '';
-  double temperatureCelsius = 0.0;
-  double minTemperature = 0.0;
-  double maxTemperature = 0.0;
-  int humidity = 0;
-  int pressure = 0;
-  String description = '';
+import 'package:flutter/material.dart';
+class WeatherProvider with ChangeNotifier {
+  String cityName = 'kumta';
+  double temperatureCelsius = 25.0;
+  double minTemperature = 18.0;
+  double maxTemperature = 29.0;
+  int humidity = 77;
+  int precipitation = 70;
+  String description = 'Rainy';
+  String weatherIconUrl = '';
   bool isFavorite = false;
   bool isCelsius = true;
 
@@ -16,16 +18,18 @@ import 'package:flutter/material.dart';class WeatherProvider with ChangeNotifier
     required double minTemp,
     required double maxTemp,
     required int humidity,
-    required int pressure,
+    required int precipitation,
     required String description,
+    required String iconCode,
   }) {
     cityName = city;
     temperatureCelsius = tempCelsius;
     minTemperature = minTemp;
     maxTemperature = maxTemp;
     this.humidity = humidity;
-    this.pressure = pressure;
+    this.precipitation = precipitation;
     this.description = description;
+    weatherIconUrl = 'https://openweathermap.org/img/wn/$iconCode@2x.png';
     notifyListeners();
   }
 

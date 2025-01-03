@@ -18,7 +18,6 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
     {'name': 'Hubli', 'temp': '33 °', 'description': 'Humid'},
   ];
 
-  // Function to return different icons based on weather description
   IconData getWeatherIcon(String description) {
     switch (description.toLowerCase()) {
       case 'sunny':
