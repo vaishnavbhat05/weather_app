@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/favourite_city.dart';
 import '../models/recent_search.dart';
+import '../provider/favourite_provider.dart';
 import '../services/DatabaseService.dart';
 import 'home_screen.dart';
 
@@ -20,6 +23,17 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
   }
 
   void clearAllSearches() async {
+    await DatabaseHelper.instance.clearAllRecentSearches();
+    setState(() {
+      recentSearches = DatabaseHelper.instance.getRecentSearches();
+    });
+  }
+
+  void removeSearch(String cityName) async {
+    await DatabaseHelper.instance.deleteRecentSearch(cityName);
+    setState(() {
+      recentSearches = DatabaseHelper.instance.getRecentSearches();
+    });
   }
 
   @override
@@ -47,7 +61,7 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
             ),
             const Spacer(),
             IconButton(
-              onPressed: clearAllSearches,
+              onPressed: () {},
               icon: const Icon(Icons.search, color: Colors.black),
             ),
           ],
@@ -118,81 +132,114 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                           itemCount: recentSearchesList.length,
                           itemBuilder: (context, index) {
                             final search = recentSearchesList[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.2),
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                            return Dismissible(
+                              key: Key(search.cityName),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: const Icon(Icons.delete,
+                                    color: Colors.white),
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        search.cityName,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.yellow,
+                              onDismissed: (direction) {
+                                removeSearch(search.cityName);
+                              },
+                              child: Consumer<FavouriteProvider>(
+                                builder: (context, favoriteProvider, child) {
+                                  final isFavorite = favoriteProvider
+                                      .isCityFavorite(search.cityName);
+
+                                  return Container(
+                                    margin:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                    padding: const EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withOpacity(0.2),
+                                          offset: const Offset(0, 2),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          search.weatherIconUrl.isNotEmpty
-                                              ? Image.network(
-                                            search.weatherIconUrl,
-                                            width: 32,
-                                            height: 32,
-                                            fit: BoxFit.cover,
-                                          )
-                                              : const Icon(
-                                            Icons.wb_sunny_rounded,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '${search.temperatureCelsius.toStringAsFixed(0)}°C',
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white,
+                                      ],
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              search.cityName,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.yellow,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            search.description,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.white,
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                search.weatherIconUrl.isNotEmpty
+                                                    ? Image.network(
+                                                  search.weatherIconUrl,
+                                                  width: 32,
+                                                  height: 32,
+                                                  fit: BoxFit.cover,
+                                                )
+                                                    : const Icon(
+                                                  Icons.wb_sunny_rounded,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  '${search.temperatureCelsius.toStringAsFixed(0)}°c',
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  search.description,
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.favorite,
+                                            color: isFavorite
+                                                ? Colors.yellow
+                                                : Colors.white,
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    icon: const Icon(Icons.favorite),
-                                    color: Colors.yellow.shade700,
-                                    onPressed: () async {
-                                      await DatabaseHelper.instance
-                                          .deleteRecentSearch(search.cityName);
-                                      setState(() {
-                                        recentSearches = DatabaseHelper.instance
-                                            .getRecentSearches();
-                                      });
-                                    },
-                                  ),
-                                ],
+                                          onPressed: () {
+                                            favoriteProvider.toggleFavorite(
+                                              FavouriteCity(
+                                                cityName: search.cityName,
+                                                weatherIconUrl:
+                                                search.weatherIconUrl,
+                                                temperatureCelsius:
+                                                search.temperatureCelsius,
+                                                description: search.description,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           },

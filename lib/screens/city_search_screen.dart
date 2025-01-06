@@ -45,31 +45,6 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
     }
     return [];
   }
-
-  // Future<void> _fetchWeatherData(String cityName) async {
-  //   const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde'; // Replace with your API key
-  //   final url = Uri.parse(
-  //       'https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&units=metric');
-  //
-  //   final response = await http.get(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     final data = json.decode(response.body);
-  //
-  //     WeatherData weatherData = WeatherData.fromJson(data);
-  //
-  //     Provider.of<WeatherProvider>(context, listen: false)
-  //         .updateWeatherData(weatherData);
-  //
-  //     // Navigate to the HomeScreen after updating the weather data
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => const HomeScreen()),
-  //     );
-  //   } else {
-  //     throw Exception('Failed to load weather data');
-  //   }
-  // }
   Future<void> _fetchWeatherData(String cityName) async {
     const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde';
     final url = Uri.parse(

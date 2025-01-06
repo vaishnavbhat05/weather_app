@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/favourite_city.dart';
-import '../provider/weather_provider.dart';
-import '../services/DatabaseService.dart';
+import '../provider/favourite_provider.dart';
 import 'home_screen.dart';
 
 class FavouriteScreen extends StatelessWidget {
@@ -27,9 +26,10 @@ class FavouriteScreen extends StatelessWidget {
             const Text(
               'Favourite',
               style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const Spacer(),
             IconButton(
@@ -38,14 +38,11 @@ class FavouriteScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: FutureBuilder<List<FavouriteCity>>(
-          future: DatabaseHelper.instance.getFavorites(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Error loading favorites'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        body: Consumer<FavouriteProvider>(
+          builder: (context, favouriteProvider, _) {
+            final favoriteCities = favouriteProvider.favoriteCities;
+
+            if (favoriteCities.isEmpty) {
               return Center(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -70,144 +67,138 @@ class FavouriteScreen extends StatelessWidget {
                   ),
                 ),
               );
-            } else {
-              List<FavouriteCity> favoriteCities = snapshot.data!;
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF3D72E8),
-                      Color(0xFF9568D1),
-                    ],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header Row
-                      Row(
-                        children: [
-                          Text(
-                            "${favoriteCities.length} city added to favourite",
-                            style: const TextStyle(
-                                fontSize: 18, color: Colors.white),
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () {
-                              showRemoveAllDialog(context, favoriteCities);
-                            },
-                            child: const Text(
-                              "Remove All",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // List of favorite cities
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: favoriteCities.length,
-                          itemBuilder: (context, index) {
-                            final city = favoriteCities[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 1.0),
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.2),
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        city.cityName,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.yellow,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          city.weatherIconUrl.isNotEmpty
-                                              ? Image.network(
-                                            city.weatherIconUrl,
-                                            width: 32,
-                                            height: 32,
-                                            fit: BoxFit.cover,
-                                          )
-                                              : const Icon(
-                                            Icons.wb_sunny_rounded,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '${city.temperatureCelsius.toStringAsFixed(0)}°c',
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            city.description,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    icon: const Icon(Icons.favorite,
-                                        color: Colors.yellow),
-                                    onPressed: () async {
-                                      // Remove the city from favorites
-                                      await DatabaseHelper.instance
-                                          .deleteFavorite(city.cityName);
-                                      Provider.of<WeatherProvider>(context,
-                                              listen: false)
-                                          .toggleFavorite();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
             }
+
+            return Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF3D72E8),
+                    Color(0xFF9568D1),
+                  ],
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "${favoriteCities.length} cities added to favourite",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            _showRemoveAllDialog(context, favoriteCities);
+                          },
+                          child: const Text(
+                            "Remove All",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: favoriteCities.length,
+                        itemBuilder: (context, index) {
+                          final city = favoriteCities[index];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.2),
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      city.cityName,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.yellow,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        city.weatherIconUrl.isNotEmpty
+                                            ? Image.network(
+                                          city.weatherIconUrl,
+                                          width: 32,
+                                          height: 32,
+                                          fit: BoxFit.cover,
+                                        )
+                                            : const Icon(
+                                          Icons.wb_sunny_rounded,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${city.temperatureCelsius.toStringAsFixed(0)}°c',
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          city.description,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(Icons.favorite,
+                                      color: Colors.yellow),
+                                  onPressed: () {
+                                    favouriteProvider
+                                        .removeFavorite(city.cityName);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ),
     );
   }
 
-  void showRemoveAllDialog(
+  void _showRemoveAllDialog(
       BuildContext context, List<FavouriteCity> favoriteCities) {
     showDialog(
       context: context,
@@ -227,12 +218,11 @@ class FavouriteScreen extends StatelessWidget {
             child: const Text("Cancel"),
           ),
           TextButton(
-            onPressed: () async {
+            onPressed: () {
               for (var city in favoriteCities) {
-                await DatabaseHelper.instance.deleteFavorite(city.cityName);
+                Provider.of<FavouriteProvider>(context, listen: false)
+                    .removeFavorite(city.cityName);
               }
-              Provider.of<WeatherProvider>(context, listen: false)
-                  .toggleFavorite();
               Navigator.pop(context);
             },
             child: const Text("OK"),
@@ -242,3 +232,4 @@ class FavouriteScreen extends StatelessWidget {
     );
   }
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_app/provider/favourite_provider.dart';
 import 'package:weather_app/provider/weather_provider.dart';
 import 'package:weather_app/services/DatabaseService.dart';
 import 'package:weather_app/splash_screen.dart';
@@ -14,6 +15,9 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(
           create: (context) => WeatherProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FavouriteProvider()..fetchFavorites(),
         ),
       ],
       child: const MyApp(),

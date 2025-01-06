@@ -78,7 +78,7 @@ class DatabaseHelper {
 
   Future<int> insertRecentSearch(RecentSearch search) async {
     final db = await instance.database;
-    return await db.insert(tableRecentSearch, search.toMap());
+    return await db.insert(tableRecentSearch, search.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<RecentSearch>> getRecentSearches() async {
@@ -93,4 +93,19 @@ class DatabaseHelper {
     final db = await instance.database;
     return await db.delete(tableRecentSearch, where: 'cityName = ?', whereArgs: [cityName]);
   }
+
+  Future<void> clearAllRecentSearches() async {
+    final db = await database;
+    await db.delete('recent_search');
+  }
+  Future<bool> isFavorite(String cityName) async {
+    final db = await instance.database;
+    final result = await db.query(
+      tableFavorites,
+      where: 'cityName = ?',
+      whereArgs: [cityName],
+    );
+    return result.isNotEmpty;
+  }
+
 }
