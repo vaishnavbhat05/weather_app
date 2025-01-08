@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/weather_data.dart';
-import 'package:http/http.dart' as http;
 
 class WeatherProvider with ChangeNotifier {
   String cityName = 'Udupi';
@@ -35,4 +34,11 @@ class WeatherProvider with ChangeNotifier {
     isCelsius = false;
     notifyListeners();
   }
+  bool isCitySearched = false;
+
+  void setCitySearched(bool value) {
+    isCitySearched = value;
+    notifyListeners();
+  }
 }
+

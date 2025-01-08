@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/recent_search.dart';
 import '../models/weather_data.dart';
 import '../provider/weather_provider.dart';
-import '../services/DatabaseService.dart';
+import '../services/database_service.dart';
 import 'home_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,18 +33,20 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
     "Bagalkot",
     "Raichur",
     "Hassan",
-    "Davangere"
+    "Davangere",
+    "malpe",
   ];
-
 
   List<String> filteredCities() {
     if (searchQuery.isNotEmpty) {
       return cities
-          .where((city) => city.toLowerCase().contains(searchQuery.toLowerCase()))
+          .where(
+              (city) => city.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     }
     return [];
   }
+
   Future<void> _fetchWeatherData(String cityName) async {
     const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde';
     final url = Uri.parse(
@@ -61,20 +63,30 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
         cityName: cityName,
         temperatureCelsius: weatherData.temperatureCelsius,
         description: weatherData.description,
-        weatherIconUrl: 'https://openweathermap.org/img/wn/${weatherData.iconCode}@2x.png',
+        weatherIconUrl:
+        'https://openweathermap.org/img/wn/${weatherData.iconCode}@2x.png',
       );
       await DatabaseHelper.instance.insertRecentSearch(recentSearch);
 
-      Provider.of<WeatherProvider>(context, listen: false).updateWeatherData(weatherData);
+      if (mounted) {
+        final weatherProvider =
+        Provider.of<WeatherProvider>(context, listen: false);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+        // Update weather data and set isCitySearched to true
+        weatherProvider.updateWeatherData(weatherData);
+        weatherProvider.setCitySearched(true);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     } else {
       throw Exception('Failed to load weather data');
     }
   }
+
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context).copyWith(
@@ -106,14 +118,14 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
             suffixIcon: searchQuery.isEmpty
                 ? null
                 : IconButton(
-              icon: const Icon(Icons.cancel_outlined),
-              onPressed: () {
-                setState(() {
-                  searchQuery = "";
-                  searchController.clear();
-                });
-              },
-            ),
+                    icon: const Icon(Icons.cancel_outlined),
+                    onPressed: () {
+                      setState(() {
+                        searchQuery = "";
+                        searchController.clear();
+                      });
+                    },
+                  ),
           ),
           style: const TextStyle(fontSize: 20),
         ),
@@ -128,32 +140,31 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
                 visible: searchQuery.isNotEmpty,
                 child: filteredCities().isNotEmpty
                     ? ListView.builder(
-                  itemCount: filteredCities().length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Text(
-                            filteredCities()[index],
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          onTap: () {
-                            _fetchWeatherData(filteredCities()[index]);
-
-                          },
-                        ),
-                        const Divider(),
-                      ],
-                    );
-                  },
-                )
+                        itemCount: filteredCities().length,
+                        itemBuilder: (context, index) {
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  filteredCities()[index],
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                onTap: () {
+                                  _fetchWeatherData(filteredCities()[index]);
+                                },
+                              ),
+                              const Divider(),
+                            ],
+                          );
+                        },
+                      )
                     : const Center(
-                  child: Text(
-                    "No cities found matching your query.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, color: Colors.black54),
-                  ),
-                ),
+                        child: Text(
+                          "No cities found matching your query.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, color: Colors.black54),
+                        ),
+                      ),
               ),
             ),
           ],

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/favourite_city.dart';
 import '../models/recent_search.dart';
 import '../provider/favourite_provider.dart';
-import '../services/DatabaseService.dart';
+import '../services/database_service.dart';
 import 'home_screen.dart';
 
 class RecentSearchScreen extends StatefulWidget {

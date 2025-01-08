@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/favourite_city.dart';
-import '../services/DatabaseService.dart';
+import '../services/database_service.dart';
 
 class FavouriteProvider with ChangeNotifier {
   List<FavouriteCity> _favoriteCities = [];

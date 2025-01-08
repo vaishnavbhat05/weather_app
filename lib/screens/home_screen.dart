@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/screens/recent_search_screen.dart';
 import '../models/favourite_city.dart';
 import '../provider/favourite_provider.dart';
 import '../provider/weather_provider.dart';
+import '../services/location_service.dart';
+import '../services/weather_service.dart';
 import 'city_search_screen.dart';
 import 'favourite_screen.dart';
 
@@ -17,9 +20,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isLocationFetched = false;
+
   @override
   void initState() {
     super.initState();
+    final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
+    if (!weatherProvider.isCitySearched) {
+      _getCurrentLocationWeather();
+    }
+  }
+
+  // Fetch weather for the current location
+  Future<void> _getCurrentLocationWeather() async {
+    try {
+      Position position = await LocationService().getCurrentLocation();
+      String city = await LocationService().getCityName(position);
+      await _fetchWeatherData(city);
+    } catch (error) {
+      // Handle error (e.g., location permission denied)
+      print('Error fetching location: $error');
+    }
+  }
+
+  // Fetch weather data based on city name
+  Future<void> _fetchWeatherData(String cityName) async {
+    await WeatherService().fetchWeatherData(cityName, context);
+    setState(() {
+      isLocationFetched = true;
+    });
   }
 
   @override
