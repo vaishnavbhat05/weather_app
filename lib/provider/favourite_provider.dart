@@ -44,6 +44,7 @@ class FavouriteProvider with ChangeNotifier {
   }
 
   bool isCityFavorite(String cityName) {
-    return _favoriteCities.any((city) => city.cityName == cityName);
+    return favoriteCities.any((city) => city.cityName == cityName);
   }
+
 }

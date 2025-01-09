@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -25,25 +26,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
+    final weatherProvider =
+        Provider.of<WeatherProvider>(context, listen: false);
     if (!weatherProvider.isCitySearched) {
       _getCurrentLocationWeather();
     }
   }
 
-  // Fetch weather for the current location
   Future<void> _getCurrentLocationWeather() async {
     try {
       Position position = await LocationService().getCurrentLocation();
       String city = await LocationService().getCityName(position);
       await _fetchWeatherData(city);
     } catch (error) {
-      // Handle error (e.g., location permission denied)
-      print('Error fetching location: $error');
+      if (kDebugMode) {
+        print('Error fetching location: $error');
+      }
     }
   }
 
-  // Fetch weather data based on city name
   Future<void> _fetchWeatherData(String cityName) async {
     await WeatherService().fetchWeatherData(cityName, context);
     setState(() {
@@ -99,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     icon:
-                    const Icon(Icons.search, color: Colors.white, size: 30),
+                        const Icon(Icons.search, color: Colors.white, size: 30),
                   ),
                 ],
               ),
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
             drawer: Drawer(
               child: ListView(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
                 children: [
                   ListTile(
                     title: const Text(
@@ -167,17 +168,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(20.0),
                     child: orientation == Orientation.portrait
                         ? Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: _buildWeatherContent(weatherProvider),
-                    )
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: _buildWeatherContent(weatherProvider),
+                          )
                         : SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: _buildWeatherContent(weatherProvider),
-                      ),
-                    ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: _buildWeatherContent(weatherProvider),
+                            ),
+                          ),
                   ),
                 );
               },
@@ -189,8 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Widget> _buildWeatherContent(WeatherProvider weatherProvider) {
-    String currentDate =
-    DateFormat('EEE, dd MMM yyyy').format(DateTime.now());
+    String currentDate = DateFormat('EEE, dd MMM yyyy').format(DateTime.now());
     String currentTime = DateFormat('hh:mm a').format(DateTime.now());
     double temperatureFahrenheit =
         (weatherProvider.temperatureCelsius * 9 / 5) + 32;
@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       const SizedBox(height: 30),
       Text(
-        '${weatherProvider.cityName}, Karnataka',
+        '${weatherProvider.cityName}, India',
         style: const TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
@@ -232,7 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Consumer<FavouriteProvider>(
             builder: (context, favouriteProvider, _) {
-              final isFavorite = favouriteProvider.isCityFavorite(weatherProvider.cityName);
+              final isFavorite =
+                  favouriteProvider.isCityFavorite(weatherProvider.cityName);
               return IconButton(
                 onPressed: () {
                   favouriteProvider.toggleFavorite(FavouriteCity(
@@ -256,20 +257,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
       const SizedBox(height: 70),
       weatherProvider.weatherIconUrl.isNotEmpty
           ? Image.network(
-        weatherProvider.weatherIconUrl,
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
-      )
+              weatherProvider.weatherIconUrl,
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            )
           : const Icon(
-        Icons.wb_sunny_rounded,
-        size: 100,
-        color: Colors.white,
-      ),
+              Icons.wb_sunny_rounded,
+              size: 100,
+              color: Colors.white,
+            ),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -293,9 +293,8 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: weatherProvider.isCelsius
-                  ? Colors.white
-                  : Colors.transparent,
+              color:
+                  weatherProvider.isCelsius ? Colors.white : Colors.transparent,
               border: Border.all(color: Colors.white),
             ),
             child: TextButton(
@@ -306,9 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '°C',
                 style: TextStyle(
                   fontSize: 22,
-                  color: weatherProvider.isCelsius
-                      ? Colors.red
-                      : Colors.white,
+                  color: weatherProvider.isCelsius ? Colors.red : Colors.white,
                 ),
               ),
             ),
@@ -330,9 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '°F',
                 style: TextStyle(
                   fontSize: 22,
-                  color: !weatherProvider.isCelsius
-                      ? Colors.red
-                      : Colors.white,
+                  color: !weatherProvider.isCelsius ? Colors.red : Colors.white,
                 ),
               ),
             ),
@@ -381,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               TextSpan(
                                 text:
-                                '${weatherProvider.minTemperature.toStringAsFixed(0)}°',
+                                    '${weatherProvider.minTemperature.toStringAsFixed(0)}°',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -397,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               TextSpan(
                                 text:
-                                '${weatherProvider.maxTemperature.toStringAsFixed(0)}°',
+                                    '${weatherProvider.maxTemperature.toStringAsFixed(0)}°',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -473,8 +468,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: weatherProvider.humidity
-                                    .toStringAsFixed(0),
+                                text:
+                                    weatherProvider.humidity.toStringAsFixed(0),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

@@ -18,9 +18,10 @@ class WeatherService {
       final data = json.decode(response.body);
       WeatherData weatherData = WeatherData.fromJson(data);
 
-      // Update WeatherProvider with the fetched data
-      Provider.of<WeatherProvider>(context, listen: false)
-          .updateWeatherData(weatherData);
+      if (context.mounted) {
+        Provider.of<WeatherProvider>(context, listen: false)
+            .updateWeatherData(weatherData);
+      }
     } else {
       throw Exception('Failed to load weather data');
     }

@@ -128,32 +128,32 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                       ),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: recentSearchesList.length,
-                          itemBuilder: (context, index) {
-                            final search = recentSearchesList[index];
-                            return Dismissible(
-                              key: Key(search.cityName),
-                              direction: DismissDirection.endToStart,
-                              background: Container(
-                                color: Colors.red,
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20.0),
-                                child: const Icon(Icons.delete,
-                                    color: Colors.white),
-                              ),
-                              onDismissed: (direction) {
-                                removeSearch(search.cityName);
-                              },
-                              child: Consumer<FavouriteProvider>(
-                                builder: (context, favoriteProvider, child) {
-                                  final isFavorite = favoriteProvider
-                                      .isCityFavorite(search.cityName);
+                        child: Consumer<FavouriteProvider>(
+                          builder: (context, favoriteProvider, child) {
+                            return ListView.builder(
+                              itemCount: recentSearchesList.length,
+                              itemBuilder: (context, index) {
+                                final search = recentSearchesList[index];
+                                final isFavorite = favoriteProvider
+                                    .isCityFavorite(search.cityName);
 
-                                  return Container(
-                                    margin:
-                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                return Dismissible(
+                                  key: Key(search.cityName),
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    color: Colors.red,
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0),
+                                    child: const Icon(Icons.delete,
+                                        color: Colors.white),
+                                  ),
+                                  onDismissed: (direction) {
+                                    removeSearch(search.cityName);
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 2.0),
                                     padding: const EdgeInsets.all(16.0),
                                     decoration: BoxDecoration(
                                       color: Colors.transparent,
@@ -166,11 +166,11 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                                     ),
                                     child: Row(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               search.cityName,
@@ -185,16 +185,16 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                                               children: [
                                                 search.weatherIconUrl.isNotEmpty
                                                     ? Image.network(
-                                                  search.weatherIconUrl,
-                                                  width: 32,
-                                                  height: 32,
-                                                  fit: BoxFit.cover,
-                                                )
+                                                        search.weatherIconUrl,
+                                                        width: 32,
+                                                        height: 32,
+                                                        fit: BoxFit.cover,
+                                                      )
                                                     : const Icon(
-                                                  Icons.wb_sunny_rounded,
-                                                  color: Colors.white,
-                                                  size: 28,
-                                                ),
+                                                        Icons.wb_sunny_rounded,
+                                                        color: Colors.white,
+                                                        size: 28,
+                                                      ),
                                                 const SizedBox(width: 8),
                                                 Text(
                                                   '${search.temperatureCelsius.toStringAsFixed(0)}°c',
@@ -228,9 +228,9 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                                               FavouriteCity(
                                                 cityName: search.cityName,
                                                 weatherIconUrl:
-                                                search.weatherIconUrl,
+                                                    search.weatherIconUrl,
                                                 temperatureCelsius:
-                                                search.temperatureCelsius,
+                                                    search.temperatureCelsius,
                                                 description: search.description,
                                               ),
                                             );
@@ -238,9 +238,9 @@ class _RecentSearchScreenState extends State<RecentSearchScreen> {
                                         ),
                                       ],
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),

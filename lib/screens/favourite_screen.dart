@@ -88,7 +88,7 @@ class FavouriteScreen extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "${favoriteCities.length} cities added to favourite",
+                          "${favoriteCities.length} ${favoriteCities.length == 1 ? 'city' : 'cities'} added to favourite",
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.white,
@@ -143,16 +143,16 @@ class FavouriteScreen extends StatelessWidget {
                                       children: [
                                         city.weatherIconUrl.isNotEmpty
                                             ? Image.network(
-                                          city.weatherIconUrl,
-                                          width: 32,
-                                          height: 32,
-                                          fit: BoxFit.cover,
-                                        )
+                                                city.weatherIconUrl,
+                                                width: 32,
+                                                height: 32,
+                                                fit: BoxFit.cover,
+                                              )
                                             : const Icon(
-                                          Icons.wb_sunny_rounded,
-                                          color: Colors.white,
-                                          size: 28,
-                                        ),
+                                                Icons.wb_sunny_rounded,
+                                                color: Colors.white,
+                                                size: 28,
+                                              ),
                                         const SizedBox(width: 8),
                                         Text(
                                           '${city.temperatureCelsius.toStringAsFixed(0)}°c',
@@ -232,4 +232,3 @@ class FavouriteScreen extends StatelessWidget {
     );
   }
 }
-

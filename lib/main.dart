@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/provider/favourite_provider.dart';
 import 'package:weather_app/provider/weather_provider.dart';
-import 'package:weather_app/screens/home_screen.dart';
 import 'package:weather_app/services/database_service.dart';
 import 'package:weather_app/splash_screen.dart';
 
@@ -37,7 +36,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-      // home: const HomeScreen(),
     );
   }
 }

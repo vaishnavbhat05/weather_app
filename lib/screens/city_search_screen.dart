@@ -18,33 +18,38 @@ class CitySearchScreen extends StatefulWidget {
 class _CitySearchScreenState extends State<CitySearchScreen> {
   TextEditingController searchController = TextEditingController();
   String searchQuery = "";
-  List<String> cities = [
-    "Bangalore",
-    "Mysuru",
-    "Mangalore",
-    "Hubli",
-    "Dharwad",
-    "Belagavi",
-    "Shimoga",
-    "Tumkur",
-    "Udupi",
-    "Chitradurga",
-    "Bijapur",
-    "Bagalkot",
-    "Raichur",
-    "Hassan",
-    "Davangere",
-    "malpe",
-  ];
+  List<Map<String, dynamic>> citySuggestions = [];
+  bool isLoading = false;
 
-  List<String> filteredCities() {
-    if (searchQuery.isNotEmpty) {
-      return cities
-          .where(
-              (city) => city.toLowerCase().contains(searchQuery.toLowerCase()))
-          .toList();
+  Future<void> fetchCitySuggestions(String query) async {
+    const apiKey = 'cb0eaffde1f1678e6b49dde732cc8dde';
+    final url = Uri.parse(
+        'https://api.openweathermap.org/geo/1.0/direct?q=$query&limit=5&appid=$apiKey');
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        citySuggestions = data.map((city) {
+          return {
+            'name': city['name'],
+            'country': city['country'],
+          };
+        }).toList();
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        citySuggestions = [];
+        isLoading = false;
+      });
+      throw Exception('Failed to load city suggestions');
     }
-    return [];
   }
 
   Future<void> _fetchWeatherData(String cityName) async {
@@ -59,20 +64,21 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
 
       WeatherData weatherData = WeatherData.fromJson(data);
 
+      final standardizedCityName = data['name'];
+
       final recentSearch = RecentSearch(
-        cityName: cityName,
+        cityName: standardizedCityName,
         temperatureCelsius: weatherData.temperatureCelsius,
         description: weatherData.description,
         weatherIconUrl:
-        'https://openweathermap.org/img/wn/${weatherData.iconCode}@2x.png',
+            'https://openweathermap.org/img/wn/${weatherData.iconCode}@2x.png',
       );
       await DatabaseHelper.instance.insertRecentSearch(recentSearch);
 
       if (mounted) {
         final weatherProvider =
-        Provider.of<WeatherProvider>(context, listen: false);
+            Provider.of<WeatherProvider>(context, listen: false);
 
-        // Update weather data and set isCitySearched to true
         weatherProvider.updateWeatherData(weatherData);
         weatherProvider.setCitySearched(true);
 
@@ -85,7 +91,6 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
       throw Exception('Failed to load weather data');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +107,11 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
           onChanged: (value) {
             setState(() {
               searchQuery = value;
+              if (searchQuery.isNotEmpty) {
+                fetchCitySuggestions(searchQuery);
+              } else {
+                citySuggestions.clear();
+              }
             });
           },
           decoration: InputDecoration(
@@ -123,6 +133,7 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
                       setState(() {
                         searchQuery = "";
                         searchController.clear();
+                        citySuggestions.clear();
                       });
                     },
                   ),
@@ -136,36 +147,46 @@ class _CitySearchScreenState extends State<CitySearchScreen> {
           children: [
             const SizedBox(height: 20),
             Expanded(
-              child: Visibility(
-                visible: searchQuery.isNotEmpty,
-                child: filteredCities().isNotEmpty
-                    ? ListView.builder(
-                        itemCount: filteredCities().length,
-                        itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(
-                                  filteredCities()[index],
-                                  style: const TextStyle(color: Colors.black),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : citySuggestions.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: citySuggestions.length,
+                          itemBuilder: (context, index) {
+                            final city = citySuggestions[index];
+                            return Column(
+                              children: [
+                                ListTile(
+                                  title: Text(
+                                    "${city['name']}, ${city['country']}",
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                  onTap: () {
+                                    _fetchWeatherData(city['name']);
+                                  },
                                 ),
-                                onTap: () {
-                                  _fetchWeatherData(filteredCities()[index]);
-                                },
+                                const Divider(),
+                              ],
+                            );
+                          },
+                        )
+                      : searchQuery.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "Start typing to search for cities.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black54),
                               ),
-                              const Divider(),
-                            ],
-                          );
-                        },
-                      )
-                    : const Center(
-                        child: Text(
-                          "No cities found matching your query.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, color: Colors.black54),
-                        ),
-                      ),
-              ),
+                            )
+                          : const Center(
+                              child: Text(
+                                "No cities found matching your query.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black54),
+                              ),
+                            ),
             ),
           ],
         ),

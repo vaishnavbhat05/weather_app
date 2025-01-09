@@ -45,12 +45,6 @@ class DatabaseHelper {
           weatherIconUrl TEXT
         );
       ''');
-        }, onUpgrade: (Database db, int oldVersion, int newVersion) async {
-          if (oldVersion < 2) {
-            await db.execute('''
-          ALTER TABLE $tableFavorites ADD COLUMN weatherIconUrl TEXT NOT NULL;
-        ''');
-          }
         });
   }
 

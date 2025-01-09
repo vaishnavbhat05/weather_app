@@ -14,8 +14,8 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Future.delayed(
       const Duration(seconds: 3),
-          () {
-        if(mounted) {
+      () {
+        if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -26,7 +26,6 @@ class _SplashScreenState extends State<SplashScreen> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,4 +58,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-
